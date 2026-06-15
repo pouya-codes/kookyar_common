@@ -233,13 +233,7 @@ public class PitchView extends SurfaceView implements Runnable {
 
     public void setCenterPitch(float centerPitch) {
         alpha = 0;
-
-        if (!firstCenter) {
-            this.centerPitch = centerPitch;
-        }
-        firstCenter = false;
-
-
+        this.centerPitch = centerPitch;
     }
 
     public void setMidiRef(float midiRef) {
@@ -661,11 +655,11 @@ public class PitchView extends SurfaceView implements Runnable {
         textPaint.setAlpha(alpha);
         textPaint.setColor(Color.GREEN);
         textPaint.setTextAlign(Align.CENTER);
-        textPaint.setTextSize(width / 20f);
+        textPaint.setTextSize(width / 25f);
         textPaint.setFakeBoldText(true);
         
         String noteName = (kookType != 1) ? drawName2() : drawName();
-        canvas.drawText(noteName, centerX, centerY - 5, textPaint);
+        canvas.drawText(noteName, centerX, centerY - 10, textPaint);
         
         textPaint.setTextSize(width / 28f);
         textPaint.setColor(Color.CYAN);
