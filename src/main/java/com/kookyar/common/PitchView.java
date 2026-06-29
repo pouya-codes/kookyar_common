@@ -66,21 +66,19 @@ public class PitchView extends SurfaceView implements Runnable {
 
     public void pause() {
         isItOK = false;
-        while (true) {
+        runned = false;
+        Thread drawThread = thread;
+        if (drawThread != null) {
             try {
-                thread.join();
+                drawThread.join();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
             }
-            break;
         }
-
     }
 
     public void resume() {
-        isItOK = true;
-        thread = new Thread(this);
-        thread.start();
+        start();
     }
 
     public void setKookType(int kookType) {
@@ -202,14 +200,17 @@ public class PitchView extends SurfaceView implements Runnable {
     }
 
     public boolean getRunned() {
-        return runned;
+        return runned && thread != null && thread.isAlive();
     }
 
     public void start() {
+        if (getRunned()) {
+            return;
+        }
+        isItOK = true;
+        runned = true;
         thread = new Thread(this);
         thread.start();
-
-
     }
 
     public PitchView(Context context) {

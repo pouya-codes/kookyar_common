@@ -1,25 +1,17 @@
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.13.0'
-    }
+plugins {
+    id 'com.android.library'
 }
-
-apply plugin: 'com.android.library'
 
 group = 'com.kookyar'
 version = '1.0.0'
 
 android {
     namespace 'com.kookyar.common'
-    compileSdk 35
+    compileSdk 37
 
     defaultConfig {
         minSdk 21
-        targetSdk 35
+        targetSdk 37
     }
 
     compileOptions {
@@ -33,10 +25,10 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.core:core:1.15.0'
-    implementation 'androidx.activity:activity:1.10.1'
-    implementation 'androidx.fragment:fragment:1.8.6'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'androidx.core:core:1.16.0'
+    implementation 'androidx.activity:activity:1.11.0'
+    implementation 'androidx.fragment:fragment:1.8.9'
     implementation 'androidx.preference:preference:1.2.1'
-    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'com.google.android.material:material:1.13.0'
 }
