@@ -95,26 +95,50 @@ public class PitchViewPardeh extends SurfaceView implements Runnable {
 
     @Override
     public void run() {
-        try {
-            while (isItOK == true) {
-                if (!surfaceHolder.getSurface().isValid()) {
-                    continue;
-                }
-
-                Canvas canvas = surfaceHolder.lockCanvas();
-                draw(canvas);
-                surfaceHolder.unlockCanvasAndPost(canvas);
+        while (isItOK) {
+            if (!surfaceHolder.getSurface().isValid()) {
                 try {
-                    // Optimized: reduced frame rate for better battery and performance
-                    if (centerPitch == 0) thread.sleep(100);
-                    else thread.sleep(33); // ~30 FPS, sufficient for tuner display
+                    Thread.sleep(16);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+                continue;
+            }
+
+            Canvas canvas = null;
+            try {
+                canvas = surfaceHolder.lockCanvas();
+                if (canvas != null) {
+                    draw(canvas);
+                }
+            } catch (Exception ignored) {
+            } finally {
+                if (canvas != null) {
+                    try {
+                        surfaceHolder.unlockCanvasAndPost(canvas);
+                    } catch (Exception ignored) {
+                    }
                 }
             }
+
+            try {
+                if (centerPitch == 0) {
+                    Thread.sleep(100);
+                } else {
+                    Thread.sleep(33);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
         }
-        catch (Exception e) {
-            // Silent exception handling for thread safety
+        runned = false;
+    }
+
+    private void ensureDrawThread() {
+        if (!getRunned()) {
+            start();
         }
     }
 
@@ -235,6 +259,7 @@ public class PitchViewPardeh extends SurfaceView implements Runnable {
             this.centerPitch = centerPitch;
         }
         firstCenter = false;
+        ensureDrawThread();
     }
 
     public void setMidiRef(float midiRef) {
@@ -252,6 +277,7 @@ public class PitchViewPardeh extends SurfaceView implements Runnable {
             alphaChangeSpeedCent = alphaChangeSpeedCentUnit;
         }
         this.currentPitch = currentPitch;
+        ensureDrawThread();
         
         // Update sound intensity based on pitch detection confidence
         // Higher confidence (valid pitch) = higher intensity

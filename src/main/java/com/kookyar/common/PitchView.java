@@ -92,33 +92,52 @@ public class PitchView extends SurfaceView implements Runnable {
 
     @Override
     public void run() {
-        try {
-
-            while (isItOK == true) {
-                if (!surfaceHolder.getSurface().isValid()) {
-                    continue;
-
-                }
-
-                Canvas canvas = surfaceHolder.lockCanvas();
-                draw(canvas);
-                surfaceHolder.unlockCanvasAndPost(canvas);
+        while (isItOK) {
+            if (!surfaceHolder.getSurface().isValid()) {
                 try {
-                    // Optimized: reduced frame rate for better battery and performance
-                    if (centerPitch == 0) thread.sleep(100);
-                    else thread.sleep(33); // ~30 FPS, sufficient for tuner display
+                    Thread.sleep(16);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+                continue;
+            }
+
+            Canvas canvas = null;
+            try {
+                canvas = surfaceHolder.lockCanvas();
+                if (canvas != null) {
+                    draw(canvas);
+                }
+            } catch (Exception ignored) {
+                // Surface can be temporarily unavailable during rapid UI updates.
+            } finally {
+                if (canvas != null) {
+                    try {
+                        surfaceHolder.unlockCanvasAndPost(canvas);
+                    } catch (Exception ignored) {
+                    }
                 }
             }
+
+            try {
+                if (centerPitch == 0) {
+                    Thread.sleep(100);
+                } else {
+                    Thread.sleep(33);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
         }
-        catch (Exception e) {
-//            e.print
+        runned = false;
+    }
 
+    private void ensureDrawThread() {
+        if (!getRunned()) {
+            start();
         }
-
-
-
     }
 
     private void init() {
@@ -235,6 +254,7 @@ public class PitchView extends SurfaceView implements Runnable {
     public void setCenterPitch(float centerPitch) {
         alpha = 0;
         this.centerPitch = centerPitch;
+        ensureDrawThread();
     }
 
     public void setMidiRef(float midiRef) {
@@ -253,7 +273,8 @@ public class PitchView extends SurfaceView implements Runnable {
             alphaChangeSpeedCent = alphaChangeSpeedCentUnit;
         }
         this.currentPitch = currentPitch;
-        
+        ensureDrawThread();
+
         // Update sound intensity based on pitch detection confidence
         // Higher confidence (valid pitch) = higher intensity
         targetIntensity = (currentPitch > 12) ? Math.min(1.0f, currentPitch / 100f) : 0.1f;
